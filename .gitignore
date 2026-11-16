@@ -1,0 +1,17 @@
+# Windows and OS artifacts
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+.DS_Store
+
+# Logs and temp files
+*.log
+*.tmp
+*.temp
+*.bak
+
+# Playwright test traces / screenshots
+test-results/
+playwright-report/
+blob-report/

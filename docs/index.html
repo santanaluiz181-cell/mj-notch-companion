@@ -1,0 +1,520 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="paper">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MJ Notch Companion v9.0 - Desktop Dynamic Island &amp; 48 Skins</title>
+  <style>
+    :root {
+      --bg: #F7F4EE;
+      --card: #FFFFFF;
+      --alt: #EFECE6;
+      --border: #2D2D2D;
+      --border-w: 2px;
+      --radius: 8px;
+      --shadow: 4px 4px 0 #2D2D2D;
+      --ink: #111113;
+      --muted: #52525B;
+      --accent-bg: #FFC000;
+      --accent-fg: #111113;
+      --ok-bg: #DCFCE7;
+      --ok-fg: #14532D;
+      --warn-bg: #FEF3C7;
+      --warn-fg: #92400E;
+      --err-bg: #FEE2E2;
+      --err-fg: #991B1B;
+    }
+
+    html[data-theme="graphite"] {
+      --bg: #111113;
+      --card: #18181B;
+      --alt: #222226;
+      --border: #27272A;
+      --border-w: 1px;
+      --radius: 10px;
+      --shadow: 0 18px 42px rgba(0, 0, 0, 0.55);
+      --ink: #F4F4F5;
+      --muted: #A1A1AA;
+      --accent-bg: #FFC000;
+      --accent-fg: #111113;
+      --ok-bg: #14532D;
+      --ok-fg: #86EFAC;
+      --warn-bg: #451A03;
+      --warn-fg: #FCD34D;
+      --err-bg: #450A0A;
+      --err-fg: #FCA5A5;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--ink);
+      font-family: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      transition: background 0.18s ease, color 0.18s ease;
+    }
+
+    .mono { font-family: "Consolas", "Cascadia Mono", ui-monospace, monospace; font-variant-numeric: tabular-nums; }
+    a { color: inherit; }
+
+    button:focus-visible, a:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid #D97706;
+      outline-offset: 2px;
+    }
+
+    .wrap { max-width: 1180px; margin: 0 auto; padding: 20px 20px 64px; }
+
+    /* Top Nav */
+    .topbar {
+      display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+      padding: 14px 18px;
+      background: var(--card);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius);
+      margin-bottom: 28px;
+    }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .brand img { width: 42px; height: 42px; object-fit: contain; }
+    .brand-title { font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+    .brand-sub { font-size: 12px; color: var(--muted); }
+
+    .controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    .btn {
+      min-height: 44px; padding: 0 14px;
+      border: var(--border-w) solid var(--border);
+      border-radius: var(--radius);
+      background: var(--alt); color: var(--ink);
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+      text-decoration: none;
+      transition: transform 0.12s ease, border-color 0.12s ease;
+    }
+    .btn:hover { transform: translateY(-1px); border-color: #D97706; }
+    .btn:active { transform: translateY(0); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+    .btn-primary {
+      background: var(--accent-bg); color: var(--accent-fg);
+      border: 2px solid #2D2D2D;
+    }
+    .btn.active {
+      background: var(--ink); color: var(--bg);
+    }
+
+    /* Hero */
+    .hero {
+      display: grid; grid-template-columns: 1.2fr 0.8fr; gap: 24px;
+      margin-bottom: 28px; align-items: stretch;
+    }
+    .card {
+      background: var(--card);
+      border: var(--border-w) solid var(--border);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .card-focal {
+      box-shadow: var(--shadow);
+    }
+    .kicker {
+      font-size: 12px; font-weight: 800; letter-spacing: 0.06em;
+      text-transform: uppercase; color: var(--muted);
+    }
+    h1 { font-size: clamp(28px, 4vw, 44px); font-weight: 900; line-height: 1.08; letter-spacing: -0.03em; margin: 14px 0 12px; }
+    .lead { font-size: 16px; color: var(--muted); max-width: 60ch; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+
+    /* Interactive Island Previewer */
+    .preview-box { display: flex; flex-direction: column; justify-content: space-between; gap: 14px; }
+    .sim-pill {
+      padding: 12px 16px; border-radius: 999px;
+      background: var(--alt); border: 2px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+    }
+    .sim-pill.appbar-mode { border-radius: 8px; width: 100%; background: #111113; color: #F4F4F5; border-color: #27272A; }
+    .cpu-dot { width: 10px; height: 10px; border-radius: 50%; background: #16A34A; display: inline-block; }
+    .cpu-dot.panic { width: 13px; height: 13px; background: #DC2626; }
+    @keyframes focaShake {
+      0%,100% { transform: translate(0, 0); }
+      25% { transform: translate(-2px, 1px); }
+      75% { transform: translate(2px, -1px); }
+    }
+    .shaking { animation: focaShake 0.14s infinite; }
+
+    /* Section grid */
+    .sec-title { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin: 34px 0 14px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
+    .grid-2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+    .chip-row { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .chip-btn {
+      min-height: 44px; padding: 6px 12px; border-radius: 6px; font-size: 12px; font-weight: 700;
+      border: 1.5px solid var(--border); background: var(--alt); color: var(--ink); cursor: pointer;
+    }
+    .chip-btn.active { background: var(--ok-bg); color: var(--ok-fg); border-color: var(--ok-fg); }
+
+    /* Video Showcase */
+    .video-card video {
+      width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover;
+      border-radius: 6px; border: 1.5px solid var(--border); background: #111113;
+      margin-top: 12px; display: block;
+    }
+
+    /* 48 Skins Browser */
+    .skins-toolbar {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .field {
+      min-height: 44px; padding: 8px 12px; border-radius: var(--radius);
+      border: var(--border-w) solid var(--border); background: var(--card); color: var(--ink);
+      font-size: 14px; min-width: 220px; flex: 1;
+    }
+    .skins-grid {
+      display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;
+    }
+    .skin-tile {
+      background: var(--card); border: var(--border-w) solid var(--border);
+      border-radius: var(--radius); padding: 12px 10px;
+      display: flex; flex-direction: column; align-items: center; gap: 8px;
+      cursor: pointer; text-align: center; min-height: 44px;
+    }
+    .skin-tile:hover { border-color: #D97706; }
+    .skin-tile img { width: 88px; height: 88px; object-fit: contain; }
+    .skin-name { font-size: 12px; font-weight: 800; word-break: break-word; }
+
+    /* Mercury & Shortcuts Table */
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+    th, td {
+      text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 13px;
+    }
+    th { font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--muted); }
+
+    footer {
+      margin-top: 44px; padding-top: 18px; border-top: 1px solid var(--border);
+      display: flex; flex-wrap: wrap; gap: 12px; justify-content: space-between;
+      font-size: 13px; color: var(--muted);
+    }
+
+    @media (max-width: 960px) {
+      .hero { grid-template-columns: 1fr; }
+      .grid-2 { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 680px) {
+      .grid-3 { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 520px) {
+      .wrap { padding: 12px 12px 48px; }
+      .card { padding: 16px; }
+      .grid-3 { grid-template-columns: 1fr; }
+      .skins-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header class="topbar">
+      <div class="brand">
+        <img id="topBrandMascot" src="assets/skins/01_Base_Pokemon_Spheal.png" alt="Foquinha mascot" width="42" height="42" fetchpriority="high" />
+        <div>
+          <div class="brand-title">MJ NOTCH COMPANION v9.0</div>
+          <div class="brand-sub mono" data-i18n="subtitle">OPEN EDITION · C++ WIN32 SETUP · 48 SKINS</div>
+        </div>
+      </div>
+
+      <div class="controls">
+        <button class="btn" type="button" onclick="setLang('en')" id="lang-en">EN</button>
+        <button class="btn" type="button" onclick="setLang('zh')" id="lang-zh">中文</button>
+        <button class="btn" type="button" onclick="setLang('pt')" id="lang-pt">PT-BR</button>
+        <button class="btn" type="button" onclick="toggleTheme()" id="themeBtn">Theme: Paper</button>
+      </div>
+    </header>
+
+    <main>
+    <section class="hero">
+      <div class="card card-focal">
+        <p class="kicker mono" data-i18n="heroBadge">WINDOWS 10/11 X64 · ZERO CLOUD DEPENDENCY</p>
+        <h1 data-i18n="heroTitle">A living desktop island built for builders.</h1>
+        <p class="lead" data-i18n="heroLead">
+          Dual aesthetic (Editorial Paper Pill + Apple Graphite AppBar), 48 mascot skins, configurable Pomodoro &amp; Habits, 16-role Swarm Inspector, WinRT media control, offline voice routing, and Mercury Agent PC automation.
+        </p>
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="../installer/MJNotchSetup.exe" data-i18n="btnInstaller">Download MJNotchSetup.exe (C++)</a>
+          <a class="btn" href="../README.md" data-i18n="btnDocs">Read Docs (EN / 中文 / PT-BR)</a>
+        </div>
+      </div>
+
+      <div class="card card-focal preview-box">
+        <div style="display:flex; justify-content:space-between; align-items:center; gap:8px; flex-wrap:wrap;">
+          <span class="mono" style="font-size:12px; font-weight:800;" data-i18n="simLabel">INTERACTIVE DUAL-MODE SIMULATOR</span>
+          <div style="display:flex; gap:6px;">
+            <button class="btn" type="button" onclick="toggleSimMode()" id="btnSimMode">Mode: Pill</button>
+            <button class="btn" type="button" onclick="toggleSimCpu()" id="btnSimCpu">CPU: 18%</button>
+          </div>
+        </div>
+
+        <div class="sim-pill mono" id="simBar">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <img id="simMascot" src="assets/skins/01_Base_Pokemon_Spheal.png" alt="Live preview mascot" width="32" height="32" fetchpriority="high" style="width:32px; height:32px; object-fit:contain;" />
+            <span class="cpu-dot" id="simCpuDot"></span>
+            <span id="simStatusText" style="font-size:12px; font-weight:800;">CPU 18% · OK</span>
+          </div>
+          <span style="font-size:12px; font-weight:700;" id="simTimerText">⏱ 25:00 ✓3d</span>
+        </div>
+
+        <div class="chip-row mono">
+          <button class="chip-btn active" type="button" id="btnSimSmtc" onclick="setSimView('smtc')">SMTC Media</button>
+          <button class="chip-btn" type="button" id="btnSimTimers" onclick="setSimView('timers')">Ctrl+Alt+T Timers</button>
+          <button class="chip-btn" type="button" id="btnSimSwarm" onclick="setSimView('swarm')">Ctrl+Alt+S Swarm</button>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="sec-title" data-i18n="videosTitle">30-Second Motion Showreels (1080p)</h2>
+    <section class="grid-2">
+      <div class="card video-card">
+        <div class="kicker mono">REEL 01 · 30.0S · PRODUCT &amp; DUAL AESTHETIC</div>
+        <h3 style="margin-top:8px; font-size:18px;" data-i18n="reel1Title">Product &amp; Dual-Aesthetic Architecture</h3>
+        <p style="font-size:13px; color:var(--muted); margin-top:4px;" data-i18n="reel1Desc">Pill/AppBar morph, CPU tremor, Fullscreen Auto-Hide, Pomodoro drawer, Swarm Inspector, Offline Voice, and C++ Installer.</p>
+        <video width="1920" height="1080" controls muted playsinline preload="metadata" poster="assets/reel1_poster.png">
+          <source src="assets/MJNotch_Reel_01_Showreel_30s.mp4" type="video/mp4" />
+        </video>
+      </div>
+      <div class="card video-card">
+        <div class="kicker mono">REEL 02 · 30.0S · 3.0S PER ACT MATRIX</div>
+        <h3 style="margin-top:8px; font-size:18px;" data-i18n="reel2Title">All 48 Foquinha Skins (3.0s Collection Beats)</h3>
+        <p style="font-size:13px; color:var(--muted); margin-top:4px;" data-i18n="reel2Desc">Every costume from Classic &amp; Collector Hats to CyberVisor, Heroes, Football Clubs, Monsters &amp; Anime.</p>
+        <video width="1920" height="1080" controls muted playsinline preload="metadata" poster="assets/reel2_poster.png">
+          <source src="assets/MJNotch_Reel_02_All48Skins_30s.mp4" type="video/mp4" />
+        </video>
+      </div>
+    </section>
+
+    <h2 class="sec-title" data-i18n="featuresTitle">Core Capabilities</h2>
+    <section class="grid-3">
+      <article class="card">
+        <div class="mono" style="font-size:11px; color:var(--muted);">CTRL + ALT + T</div>
+        <h3 style="margin:6px 0;" data-i18n="feat1Title">ExpandPillTimers</h3>
+        <p style="font-size:13.5px; color:var(--muted);" data-i18n="feat1Body">Adjustable Focus/Break presets (15/3, 25/5, 45/10, 50/10 or custom), persistent daily habits checklist, streak counter, and mode-matched drawer skin.</p>
+      </article>
+      <article class="card">
+        <div class="mono" style="font-size:11px; color:var(--muted);">CTRL + ALT + S</div>
+        <h3 style="margin:6px 0;" data-i18n="feat2Title">Swarm Inspector &amp; Dormitory</h3>
+        <p style="font-size:13.5px; color:var(--muted);" data-i18n="feat2Body">Track up to 16 specialized subagents with wrap session chips, live thinking logs, direct message queueing, and one-click claim verification.</p>
+      </article>
+      <article class="card">
+        <div class="mono" style="font-size:11px; color:var(--muted);">MERCURY :6174 + SMTC</div>
+        <h3 style="margin:6px 0;" data-i18n="feat3Title">Local Agent + Spotify Automation</h3>
+        <p style="font-size:13.5px; color:var(--muted);" data-i18n="feat3Body">Pair Mercury Agent (:6174) or offline Vosk STT voice commands to launch Spotify/apps on your PC while WinRT SMTC surfaces track controls live.</p>
+      </article>
+    </section>
+
+    <h2 class="sec-title" data-i18n="galleryTitle">All 48 Foquinha Skins (Click to Preview in Simulator)</h2>
+    <section class="card">
+      <div class="skins-toolbar">
+        <input id="skinFilter" class="field" type="search" placeholder="Filter 48 skins..." oninput="renderSkins()" aria-label="Filter skins" />
+        <span id="skinCounter" class="kicker mono" style="border:1.5px solid var(--border); padding:6px 10px; border-radius:6px; background:var(--alt); color:var(--ink);">48 / 48</span>
+      </div>
+      <div id="skinsGrid" class="skins-grid"></div>
+    </section>
+
+    <h2 class="sec-title" data-i18n="shortcutsTitle">Global Shortcuts &amp; Skills Pack</h2>
+    <section class="card">
+      <table>
+        <thead>
+          <tr><th>Shortcut</th><th>Action</th><th>Context</th></tr>
+        </thead>
+        <tbody class="mono">
+          <tr><td>Ctrl + Alt + A</td><td>Toggle Pill Editorial / AppBar Graphite</td><td>Global Win32</td></tr>
+          <tr><td>Ctrl + Alt + T</td><td>Open ExpandPillTimers (Pomodoro &amp; Habits)</td><td>Dual Mode Drawer</td></tr>
+          <tr><td>Ctrl + Alt + S</td><td>Open Tactical Swarm Inspector</td><td>Dual Mode Drawer</td></tr>
+          <tr><td>Ctrl + Alt + J</td><td>Open Fact-Check &amp; Claim Verifier</td><td>Cross-Module Hub</td></tr>
+          <tr><td>Ctrl + Alt + G</td><td>Open Wardrobe &amp; 16-Agent Dormitory</td><td>48 Skins + Pets</td></tr>
+          <tr><td>Ctrl + Alt + N</td><td>Toggle Light Paper / Dark Graphite</td><td>Live Theme Sync</td></tr>
+        </tbody>
+      </table>
+    </section>
+    </main>
+
+    <footer>
+      <span>MJ Notch Companion v9.0 Open Edition</span>
+      <span class="mono">Built for Windows 10/11 · C++ Native Setup · MIT Docs &amp; Portable Skills</span>
+    </footer>
+  </div>
+
+  <script>
+    const SKIN_FILES = [
+      "01_Base_Pokemon_Spheal.png","02_ReporterFedora.png","03_FactCheckerGlasses.png","04_AnchorBowtie.png",
+      "05_LayoutBeret.png","06_Monocle.png","07_JerseySantos.png","08_JerseySaoPaulo.png",
+      "09_JerseyFlamengo.png","10_JerseyCorinthians.png","11_JerseyPalmeiras.png","12_MonsterDracula.png",
+      "13_MonsterFrankenstein.png","14_MonsterMummy.png","15_MonsterJason.png","16_MonsterGhost.png",
+      "17_MonsterPumpkin.png","18_Crown.png","19_PartyHat.png","20_Beanie.png",
+      "21_Sunglasses.png","22_SantaHat.png","23_DetectiveCoat.png","24_AstronautHelmet.png",
+      "25_PirateHat.png","26_ChefHat.png","27_WitchHat.png","28_BunnyEars.png",
+      "29_CyberVisor.png","30_SuperRaven.png","31_SuperBeastBoy.png","32_SuperRobin.png",
+      "33_SuperCyborg.png","34_SuperStarfire.png","35_SuperBatman.png","36_SuperSuperman.png",
+      "37_SuperFlash.png","38_SuperWonderWoman.png","39_SuperAquaman.png","40_SuperGreenLantern.png",
+      "41_SuperSpiderMan.png","42_SuperIronMan.png","43_SuperCaptainAmerica.png","44_SuperBlackPanther.png",
+      "45_SuperHulk.png","46_FantasyRapunzel.png","47_AnimeAshKetchum.png","48_StreetTrapstar.png"
+    ];
+
+    const I18N = {
+      en: {
+        subtitle: "OPEN EDITION · C++ WIN32 SETUP · 48 SKINS",
+        heroBadge: "WINDOWS 10/11 X64 · ZERO CLOUD DEPENDENCY",
+        heroTitle: "A living desktop island built for builders.",
+        heroLead: "Dual aesthetic (Editorial Paper Pill + Apple Graphite AppBar), 48 mascot skins, configurable Pomodoro & Habits, 16-role Swarm Inspector, WinRT media control, offline voice routing, and Mercury Agent PC automation.",
+        btnInstaller: "Download MJNotchSetup.exe (C++)",
+        btnDocs: "Read Docs (EN / 中文 / PT-BR)",
+        simLabel: "INTERACTIVE DUAL-MODE SIMULATOR",
+        videosTitle: "30-Second Motion Showreels (1080p)",
+        reel1Title: "Product & Dual-Aesthetic Architecture",
+        reel1Desc: "Pill/AppBar morph, CPU tremor, Fullscreen Auto-Hide, Pomodoro drawer, Swarm Inspector, Offline Voice, and C++ Installer.",
+        reel2Title: "All 48 Foquinha Skins (3.0s Collection Beats)",
+        reel2Desc: "Every costume from Classic & Collector Hats to CyberVisor, Heroes, Football Clubs, Monsters & Anime.",
+        featuresTitle: "Core Capabilities",
+        feat1Title: "ExpandPillTimers",
+        feat1Body: "Adjustable Focus/Break presets (15/3, 25/5, 45/10, 50/10 or custom), persistent daily habits checklist, streak counter, and mode-matched drawer skin.",
+        feat2Title: "Swarm Inspector & Dormitory",
+        feat2Body: "Track up to 16 specialized subagents with wrap session chips, live thinking logs, direct message queueing, and one-click claim verification.",
+        feat3Title: "Local Agent + Spotify Automation",
+        feat3Body: "Pair Mercury Agent (:6174) or offline Vosk STT voice commands to launch Spotify/apps on your PC while WinRT SMTC surfaces track controls live.",
+        galleryTitle: "All 48 Foquinha Skins (Click to Preview in Simulator)",
+        shortcutsTitle: "Global Shortcuts & Skills Pack"
+      },
+      zh: {
+        subtitle: "开源版 · C++ WIN32 安装程序 · 48 款皮肤",
+        heroBadge: "WINDOWS 10/11 X64 · 纯本地零云端依赖",
+        heroTitle: "为开发者打造的桌面动态灵动岛。",
+        heroLead: "双视觉美学（纸感悬浮胶囊 + 苹果石墨停靠栏）、48 款海豹皮肤、可配置番茄钟与习惯清单、16 智能体军团检查器、WinRT 媒体控制、离线语音以及 Mercury Agent 桌面自动化。",
+        btnInstaller: "下载 MJNotchSetup.exe (C++ 安装包)",
+        btnDocs: "阅读三语文档 (EN / 中文 / PT-BR)",
+        simLabel: "双美学实时交互模拟器",
+        videosTitle: "30 秒动态功能展示视频 (1080p)",
+        reel1Title: "核心功能与双美学架构",
+        reel1Desc: "胶囊/停靠栏变形、CPU 震颤预警、全屏自动隐藏、番茄钟、16 智能体与 C++ 安装程序。",
+        reel2Title: "全套 48 款 Foquinha 皮肤大赏 (3秒高光节奏)",
+        reel2Desc: "完整呈现基础款、赛博护目镜、英雄联盟、足球俱乐部、万圣怪兽与动漫皮肤。",
+        featuresTitle: "核心功能模块",
+        feat1Title: "ExpandPillTimers 番茄钟与习惯",
+        feat1Body: "支持 15/3、25/5、45/10、50/10 与自定义分钟数，每日习惯打卡连胜记录并随模式自动换肤。",
+        feat2Title: "智能体军团检查器",
+        feat2Body: "无横向滚动条干扰的标签布局，实时追踪 16 角色状态、思考流日志并支持直接指令对话。",
+        feat3Title: "Mercury Agent + Spotify 桌面控制",
+        feat3Body: "联动本地 Mercury Agent (:6174) 或离线语音命令打开 Spotify 播放音乐，并由 SMTC 实时显示曲目控制。",
+        galleryTitle: "全套 48 款皮肤库（点击卡片立即切换预览）",
+        shortcutsTitle: "全局快捷键一览"
+      },
+      pt: {
+        subtitle: "EDIÇÃO ABERTA · SETUP NATIVO C++ · 48 SKINS",
+        heroBadge: "WINDOWS 10/11 X64 · 100% LOCAL SEM CHAVES PAGAS",
+        heroTitle: "Uma Ilha Dinâmica viva para o seu Windows.",
+        heroLead: "Estética dual (Pílula Papel Editorial + AppBar Grafite Apple), 48 skins da Foquinha, Pomodoro e Hábitos configuráveis, Inspetor de 16 Subagentes, mídia WinRT SMTC, voz offline e automação via Mercury Agent.",
+        btnInstaller: "Baixar MJNotchSetup.exe (C++)",
+        btnDocs: "Ler Documentação (EN / 中文 / PT-BR)",
+        simLabel: "SIMULADOR INTERATIVO PÍLULA / APPBAR",
+        videosTitle: "Vídeos Showreel de 30 Segundos (1080p)",
+        reel1Title: "Produto & Arquitetura Dual",
+        reel1Desc: "Transição Pílula/AppBar, tremor de CPU, Fullscreen Auto-Hide, Pomodoro, Subagentes, Voz e Setup C++.",
+        reel2Title: "Todas as 48 Skins da Foquinha (3s por Ato)",
+        reel2Desc: "Do traje clássico aos super-heróis, times de futebol, monstros, cyberpunk e anime.",
+        featuresTitle: "Recursos Principais",
+        feat1Title: "ExpandPillTimers (Ctrl+Alt+T)",
+        feat1Body: "Presets 15/3, 25/5, 45/10, 50/10 ou minutos livres, checklist diário de hábitos com streak e estética adaptada ao modo ativo.",
+        feat2Title: "Inspetor do Enxame (Ctrl+Alt+S)",
+        feat2Body: "Grade fluida de 16 especialistas sem scrollbar horizontal, log ao vivo, fila direta de mensagens e verificação em 1 clique.",
+        feat3Title: "Mercury Agent (:6174) + Spotify",
+        feat3Body: "Peça por voz ou texto ao Mercury Agent para abrir o Spotify no Windows enquanto o monitor WinRT SMTC assume os botões da faixa.",
+        galleryTitle: "Catálogo Completo de 48 Skins (Clique para Pré-visualizar)",
+        shortcutsTitle: "Atalhos Globais"
+      }
+    };
+
+    let simAppBar = false;
+    let simPanic = false;
+    let currentLang = 'en';
+
+    function setLang(l) {
+      currentLang = l;
+      document.querySelectorAll('[id^="lang-"]').forEach(b => b.classList.remove('active'));
+      document.getElementById('lang-' + l).classList.add('active');
+      const dict = I18N[l] || I18N.en;
+      document.querySelectorAll('[data-i18n]').forEach(el => {
+        const key = el.getAttribute('data-i18n');
+        if (dict[key]) el.textContent = dict[key];
+      });
+    }
+
+    function toggleTheme() {
+      const html = document.documentElement;
+      const next = html.getAttribute('data-theme') === 'paper' ? 'graphite' : 'paper';
+      html.setAttribute('data-theme', next);
+      document.getElementById('themeBtn').textContent = next === 'paper' ? 'Theme: Paper' : 'Theme: Graphite';
+    }
+
+    function toggleSimMode() {
+      simAppBar = !simAppBar;
+      document.getElementById('simBar').classList.toggle('appbar-mode', simAppBar);
+      document.getElementById('btnSimMode').textContent = simAppBar ? 'Mode: AppBar' : 'Mode: Pill';
+    }
+
+    function toggleSimCpu() {
+      simPanic = !simPanic;
+      const dot = document.getElementById('simCpuDot');
+      const m = document.getElementById('simMascot');
+      const st = document.getElementById('simStatusText');
+      dot.classList.toggle('panic', simPanic);
+      m.classList.toggle('shaking', simPanic);
+      st.textContent = simPanic ? 'CPU 97% · TREMOR' : 'CPU 18% · OK';
+      document.getElementById('btnSimCpu').textContent = simPanic ? 'CPU: 97%!' : 'CPU: 18%';
+    }
+
+    function setSimView(view) {
+      document.querySelectorAll('.chip-btn').forEach(b => b.classList.remove('active'));
+      const btnId = view === 'timers' ? 'btnSimTimers' : (view === 'swarm' ? 'btnSimSwarm' : 'btnSimSmtc');
+      document.getElementById(btnId).classList.add('active');
+      const timerEl = document.getElementById('simTimerText');
+      if (view === 'timers') {
+        timerEl.textContent = '⏱ 45:00 / 10m · 4/5 Habits';
+        selectSkin('02_ReporterFedora.png');
+      } else if (view === 'swarm') {
+        timerEl.textContent = '⚡ SWARM: 3 ACTIVE · OK';
+        selectSkin('29_CyberVisor.png');
+      } else {
+        timerEl.textContent = '♪ Spotify · Playing';
+        selectSkin('01_Base_Pokemon_Spheal.png');
+      }
+    }
+
+    function selectSkin(file) {
+      document.getElementById('simMascot').src = 'assets/skins/' + file;
+      document.getElementById('topBrandMascot').src = 'assets/skins/' + file;
+    }
+
+    function renderSkins() {
+      const q = (document.getElementById('skinFilter').value || '').trim().toLowerCase();
+      const filtered = SKIN_FILES.filter(f => f.toLowerCase().includes(q));
+      document.getElementById('skinCounter').textContent = filtered.length + ' / 48';
+      const grid = document.getElementById('skinsGrid');
+      if (filtered.length === 0) {
+        grid.innerHTML = `<div class="card mono" style="grid-column:1 / -1; display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px;">
+          <span>No skins match "${q.replace(/[<>"&]/g, '')}".</span>
+          <button class="btn" type="button" onclick="document.getElementById('skinFilter').value='';renderSkins();">Reset Filter (48)</button>
+        </div>`;
+        return;
+      }
+      grid.innerHTML = filtered.map(f => {
+        const clean = f.replace('.png', '').replace(/^\d+_/, '');
+        return `<button class="skin-tile" type="button" onclick="selectSkin('${f}')" aria-label="Select skin ${clean}">
+          <img src="assets/skins/${f}" alt="${clean}" width="88" height="88" loading="lazy" />
+          <span class="skin-name mono">${clean}</span>
+        </button>`;
+      }).join('');
+    }
+
+    setLang('en');
+    renderSkins();
+  </script>
+</body>
+</html>
